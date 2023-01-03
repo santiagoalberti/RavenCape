@@ -600,9 +600,168 @@ public class Item
 					{
 						statcfg("Armor", $"Armor of {englishName}.", shared => shared.m_armor, (shared, value) => shared.m_armor = value);
 						statcfg("Armor per Level", $"Armor per level for {englishName}.", shared => shared.m_armorPerLevel, (shared, value) => shared.m_armorPerLevel = value);
-					}
 
-					if (shared.m_skillType is Skills.SkillType.Axes or Skills.SkillType.Pickaxes)
+                        var equipSEWarningMessage = "ItemManager added item, that had an equip status effect, but somehow no longer has it.";
+
+						if(shared.m_equipStatusEffect != null)
+						{
+							// this setting is currently shared, might be worth a consideration to make it client only, but most users won't change it anyway
+                            if (shared.m_equipStatusEffect.m_icon != null)
+                            {
+                                statcfg("Show Equip Status Icon", $"Whether to show the status effect icon for {englishName}. Reenabling requires restart.", shared =>
+                                {
+                                    if (shared.m_equipStatusEffect != null)
+                                    {
+                                        return shared.m_equipStatusEffect.m_icon != null;
+                                    }
+                                    else
+                                    {
+                                        Debug.LogWarning(equipSEWarningMessage);
+										return false;
+                                    }
+                                }, (shared, value) =>
+                                {
+                                    if (shared.m_equipStatusEffect != null)
+                                    {
+                                        if (!value)
+                                        {
+                                            shared.m_equipStatusEffect.m_icon = null;
+										}
+										else
+										{
+                                            // user is trying to reenable the icon. no real use caching the icon somewhere or talking to the sprite renderer
+                                            // just let the user restart, this is a setting that you almost never reenable after disabling it
+                                        }
+
+                                        FreshlyReapplyStatusEffect(shared.m_equipStatusEffect);
+                                    }
+                                    else
+                                    {
+                                        Debug.LogWarning(equipSEWarningMessage);
+                                    }
+                                });
+                            }
+                        }
+
+						// 'is' includes a null check (since null 'is' no type)
+                        if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                        {
+                            statcfg("Fall Damage Modifier", $"Fall damage modifier given by {englishName}. Use negative numbers for reductions (-0.5 = -50%).", shared =>
+                            {
+                                if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                {
+                                    return se_stat.m_fallDamageModifier;
+                                }
+                                else
+                                {
+                                    Debug.LogWarning(equipSEWarningMessage);
+                                    return 0; // default value is 0 since: damage += baseDamage * this.m_fallDamageModifier;
+                                }
+                            }, (shared, value) =>
+                            {
+                                // doesn't clamp dynamically in the ingame config manager right now
+
+                                // no use allowing more than 100% reduction
+                                value = Mathf.Max(value, -1);
+
+                                if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                {
+                                    se_stat.m_fallDamageModifier = value;
+
+                                    FreshlyReapplyStatusEffect(shared.m_equipStatusEffect);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning(equipSEWarningMessage);
+                                }
+
+                            });
+                            // name in different order to sort behind 'Fall Damage Modifier'
+                            statcfg("Fall Speed Maximum", $"Maximum fall speed while wearing {englishName}. Use 0 or negative numbers to disable.", shared =>
+                            {
+                                if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                {
+                                    return se_stat.m_maxMaxFallSpeed;
+                                }
+                                else
+                                {
+                                    Debug.LogWarning(equipSEWarningMessage);
+                                    return 0; // SE_Stats.ModifyWalkVelocity ignores values <= 0, might be a fun mod to set it to float.Epsilon to get stuck in the air
+                                }
+                            }, (shared, value) =>
+                            {
+								// doesn't clamp dynamically in the ingame config manager right now
+
+								// no use allowing negative numbers
+								value = Mathf.Max(value, 0);
+
+								if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                {
+                                    se_stat.m_maxMaxFallSpeed = value;
+
+                                    FreshlyReapplyStatusEffect(shared.m_equipStatusEffect);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning(equipSEWarningMessage);
+                                }
+                            });
+
+                            if (se_stat.m_skillLevel != Skills.SkillType.None && se_stat.m_skillLevelModifier != 0f)
+                            {
+                                statcfg("Equip Skill Level Increase", $"Which skill level {englishName} increases.", shared =>
+                                {
+                                    if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                    {
+                                        return se_stat.m_skillLevel;
+                                    }
+                                    else
+                                    {
+                                        Debug.LogWarning(equipSEWarningMessage);
+                                        return Skills.SkillType.None;
+                                    }
+                                }, (shared, value) =>
+                                {
+                                    if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                    {
+                                        se_stat.m_skillLevel = value;
+
+                                        FreshlyReapplyStatusEffect(shared.m_equipStatusEffect);
+                                    }
+                                    else
+                                    {
+                                        Debug.LogWarning(equipSEWarningMessage);
+                                    }
+                                });
+                                statcfg<float>("Equip Skill Level Increase Value", $"By how many levels {englishName} increases the skill.", shared =>
+                                {
+                                    if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                    {
+                                        return se_stat.m_skillLevelModifier;
+                                    }
+                                    else
+                                    {
+                                        Debug.LogWarning(equipSEWarningMessage);
+                                        return 0;
+                                    }
+                                }, (shared, value) =>
+                                {
+                                    if (shared.m_equipStatusEffect is SE_Stats se_stat)
+                                    {
+                                        se_stat.m_skillLevelModifier = value;
+
+                                        FreshlyReapplyStatusEffect(shared.m_equipStatusEffect);
+                                    }
+                                    else
+                                    {
+                                        Debug.LogWarning(equipSEWarningMessage);
+                                    }
+                                });
+                            }
+                        }
+                    }
+
+                    if (shared.m_skillType is Skills.SkillType.Axes or Skills.SkillType.Pickaxes)
 					{
 						statcfg("Tool tier", $"Tool tier of {englishName}.", shared => shared.m_toolTier, (shared, value) => shared.m_toolTier = value);
 					}
@@ -749,6 +908,22 @@ public class Item
 			}
 		}
 	}
+
+	private static void FreshlyReapplyStatusEffect(StatusEffect statusEffect)
+	{
+		if (Player.m_localPlayer == null)
+		{
+			return;
+		}
+
+		var statusEffectManager = Player.m_localPlayer.GetSEMan();
+
+		if (statusEffectManager != null && statusEffectManager.HaveStatusEffect(statusEffect.name))
+		{
+			statusEffectManager.RemoveStatusEffect(statusEffect, true);
+			statusEffectManager.AddStatusEffect(statusEffect);
+		}
+    }
 
 	private static string getInternalName<T>(T value) where T : struct => ((InternalName)typeof(T).GetMember(value.ToString())[0].GetCustomAttributes(typeof(InternalName)).First()).internalName;
 

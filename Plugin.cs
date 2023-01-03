@@ -16,7 +16,7 @@ namespace RavenCape
     public class RavenCapePlugin : BaseUnityPlugin
     {
         internal const string ModName = "RavenCape";
-        internal const string ModVersion = "2.1.0";
+        internal const string ModVersion = "2.2.0";
         internal const string Author = "Tequila";
         private const string ModGUID = Author + "." + ModName;
         private static string ConfigFileName = ModGUID + ".cfg";
