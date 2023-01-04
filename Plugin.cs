@@ -18,8 +18,8 @@ namespace RavenCape
         internal const string ModVersion = "2.2.0";
         internal const string Author = "Tequila";
         private const string ModGUID = Author + "." + ModName;
-        private static string ConfigFileName = ModGUID + ".cfg";
-        private static string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
+        private static readonly string ConfigFileName = ModGUID + ".cfg";
+        private static readonly string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
 
         internal static string ConnectionError = "";
 
@@ -47,7 +47,7 @@ namespace RavenCape
             // Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang"); // If your asset is in a custom folder named IronFang and not the default "assets" folder. You would use this syntax.
 
             tqRavenCape.Name.English("Raven Cape"); // You can use this to fix the display name in code
-            tqRavenCape.Description.English("Cape made of feathers, improves archery skill.");
+            tqRavenCape.Description.English("Cape made of feathers.");
             tqRavenCape.Crafting.Add("piece_workbench", 2); // Custom crafting stations can be specified as a string
             tqRavenCape.RequiredItems.Add("Feathers", 25);
             tqRavenCape.RequiredItems.Add("WolfHairBundle", 10);
@@ -101,7 +101,7 @@ namespace RavenCape
             SetupWatcher();
         }
 
-        private void OnDestroy()
+        protected void OnDestroy()
         {
             Config.Save();
         }
@@ -135,7 +135,7 @@ namespace RavenCape
         #region ConfigOptions
 
         private static ConfigEntry<Toggle> _serverConfigLocked = null!;
-        private static ConfigEntry<Toggle> _recipeIsActiveConfig = null!;
+        //private static ConfigEntry<Toggle> _recipeIsActiveConfig = null!;
 
         private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
             bool synchronizedSetting = true)
@@ -160,6 +160,8 @@ namespace RavenCape
             return config(group, name, value, new ConfigDescription(description), synchronizedSetting);
         }
 
+#pragma warning disable CS0649
+
         private class ConfigurationManagerAttributes
         {
             [UsedImplicitly] public int? Order;
@@ -167,6 +169,8 @@ namespace RavenCape
             [UsedImplicitly] public string? Category;
             [UsedImplicitly] public Action<ConfigEntryBase>? CustomDrawer;
         }
+
+#pragma warning restore CS0649
 
         #endregion ConfigOptions
     }

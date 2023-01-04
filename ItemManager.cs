@@ -137,12 +137,12 @@ public class Item
 
     private static readonly List<Item> registeredItems = new();
     private static readonly Dictionary<ItemDrop, Item> itemDropMap = new();
-    private static Dictionary<Item, Dictionary<string, List<Recipe>>> activeRecipes = new();
-    private static Dictionary<Recipe, ConfigEntryBase?> hiddenCraftRecipes = new();
-    private static Dictionary<Recipe, ConfigEntryBase?> hiddenUpgradeRecipes = new();
-    private static Dictionary<Item, Dictionary<string, ItemConfig>> itemCraftConfigs = new();
-    private static Dictionary<Item, ConfigEntry<string>> itemDropConfigs = new();
-    private Dictionary<CharacterDrop, CharacterDrop.Drop> characterDrops = new();
+    private static readonly Dictionary<Item, Dictionary<string, List<Recipe>>> activeRecipes = new();
+    private static readonly Dictionary<Recipe, ConfigEntryBase?> hiddenCraftRecipes = new();
+    private static readonly Dictionary<Recipe, ConfigEntryBase?> hiddenUpgradeRecipes = new();
+    private static readonly Dictionary<Item, Dictionary<string, ItemConfig>> itemCraftConfigs = new();
+    private static readonly Dictionary<Item, ConfigEntry<string>> itemDropConfigs = new();
+    private readonly Dictionary<CharacterDrop, CharacterDrop.Drop> characterDrops = new();
     private readonly Dictionary<ConfigEntryBase, Action> statsConfigs = new();
 
     public static Configurability DefaultConfigurability = Configurability.Full;
@@ -771,31 +771,23 @@ public class Item
                     if (itemType is ItemDrop.ItemData.ItemType.Shield or ItemDrop.ItemData.ItemType.Chest or ItemDrop.ItemData.ItemType.Hands or ItemDrop.ItemData.ItemType.Helmet or ItemDrop.ItemData.ItemType.Legs or ItemDrop.ItemData.ItemType.Shoulder)
                     {
                         Dictionary<HitData.DamageType, DamageModifier> modifiers = shared.m_damageModifiers.ToDictionary(d => d.m_type, d => (DamageModifier)(int)d.m_modifier);
+
                         foreach (HitData.DamageType damageType in ((HitData.DamageType[])Enum.GetValues(typeof(HitData.DamageType))).Except(new[] { HitData.DamageType.Chop, HitData.DamageType.Pickaxe, HitData.DamageType.Spirit, HitData.DamageType.Physical, HitData.DamageType.Elemental }))
                         {
-                            statcfg($"{damageType.ToString()} Resistance", $"{damageType.ToString()} resistance of {englishName}.", _ => modifiers.TryGetValue(damageType, out DamageModifier modifier) ? modifier : DamageModifier.None, (shared, value) =>
-                            {
-                                HitData.DamageModPair modifier = new() { m_type = damageType, m_modifier = (HitData.DamageModifier)(int)value };
-                                for (int i = 0; i < shared.m_damageModifiers.Count; ++i)
-                                {
-                                    if (shared.m_damageModifiers[i].m_type == damageType)
-                                    {
-                                        if (value == DamageModifier.None)
-                                        {
-                                            shared.m_damageModifiers.RemoveAt(i);
-                                        }
-                                        else
-                                        {
-                                            shared.m_damageModifiers[i] = modifier;
-                                        }
-                                        return;
-                                    }
-                                }
-                                if (value != DamageModifier.None)
-                                {
-                                    shared.m_damageModifiers.Add(modifier);
-                                }
-                            });
+                            statcfg($"{damageType} Resistance", $"{damageType} resistance of {englishName}.",
+                                _ => modifiers.TryGetValue(damageType, out DamageModifier modifier) ? modifier : DamageModifier.None,
+                                (shared, value) => SetResistanceValue(damageType, shared, value)
+                                );
+                        }
+
+                        if (HasPlugin(capeReworkGuid))
+                        {
+                            var coldResType = (HitData.DamageType)coldResist;
+
+                            statcfg("Cold Resistance", $"Cold resistance of {englishName}.",
+                                _ => modifiers.TryGetValue(coldResType, out DamageModifier modifier) ? modifier : DamageModifier.None,
+                                (shared, value) => SetResistanceValue(coldResType, shared, value)
+                                );
                         }
                     }
 
@@ -911,6 +903,51 @@ public class Item
         }
     }
 
+    private static Dictionary<string, bool> cache = null;
+
+    private const string capeReworkGuid = "goldenrevolver.CapeAndTorchResistanceChanges";
+    private const int coldResist = 2048;
+
+    private static void SetResistanceValue(HitData.DamageType damageType, ItemDrop.ItemData.SharedData shared, DamageModifier value)
+    {
+        // I have no clue why there was a double cast for value there, but I'm not touching it
+        HitData.DamageModPair modifier = new() { m_type = damageType, m_modifier = (HitData.DamageModifier)(int)value };
+
+        for (int i = 0; i < shared.m_damageModifiers.Count; ++i)
+        {
+            if (shared.m_damageModifiers[i].m_type == damageType)
+            {
+                if (value == DamageModifier.None)
+                {
+                    shared.m_damageModifiers.RemoveAt(i);
+                }
+                else
+                {
+                    shared.m_damageModifiers[i] = modifier;
+                }
+                return;
+            }
+        }
+
+        if (value != DamageModifier.None)
+        {
+            shared.m_damageModifiers.Add(modifier);
+        }
+    }
+
+    public static bool HasPlugin(string guid)
+    {
+        cache ??= new Dictionary<string, bool>();
+
+        if (!cache.ContainsKey(guid))
+        {
+            var plugins = UnityEngine.Object.FindObjectsOfType<BaseUnityPlugin>();
+            cache[guid] = plugins.Any(plugin => plugin.Info.Metadata.GUID == guid);
+        }
+
+        return cache[guid];
+    }
+
     private static void FreshlyReapplyStatusEffect(StatusEffect statusEffect)
     {
         if (Player.m_localPlayer == null)
@@ -954,7 +991,7 @@ public class Item
                     ItemConfig? cfg = cfgs?[kv.Key];
 
                     Recipe recipe = ScriptableObject.CreateInstance<Recipe>();
-                    recipe.name = $"{item.Prefab.name}_Recipe_{station.Table.ToString()}";
+                    recipe.name = $"{item.Prefab.name}_Recipe_{station.Table}";
                     recipe.m_amount = item[kv.Key].CraftAmount;
                     recipe.m_enabled = cfg?.table.Value != CraftingTable.Disabled;
                     recipe.m_item = item.Prefab.GetComponent<ItemDrop>();
@@ -1097,7 +1134,7 @@ public class Item
         }
     }
 
-    internal static void Patch_ZNetSceneAwake(ZNetScene __instance)
+    internal static void Patch_ZNetSceneAwake()
     {
         foreach (Item item in registeredItems)
         {
