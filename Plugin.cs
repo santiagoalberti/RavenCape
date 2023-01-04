@@ -1,14 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using ItemManager;
 using JetBrains.Annotations;
 using ServerSync;
-using UnityEngine;
+using System;
+using System.IO;
+using System.Reflection;
 
 namespace RavenCape
 {
@@ -30,20 +29,20 @@ namespace RavenCape
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static readonly ConfigSync ConfigSync = new(ModGUID)
-            { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
+        { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
 
         public enum Toggle
         {
             On = 1,
             Off = 0
         }
-        
+
         public void Awake()
         {
             _serverConfigLocked = config("1 - General", "Lock Configuration", Toggle.On,
                 "If on, the configuration is locked and can be changed by server admins only.");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
-            
+
             Item tqRavenCape = new("raven_cape_bundle", "ravenCape_tq");  // If your folder name is "assets" like the default. You would use this syntax.
             // Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang"); // If your asset is in a custom folder named IronFang and not the default "assets" folder. You would use this syntax.
 
@@ -61,25 +60,23 @@ namespace RavenCape
             //_recipeIsActiveConfig = config("IronFangAxe", "IsRecipeEnabled",Toggle.On, "Determines if the recipe is enabled for this prefab");
             //ironFangAxe.RecipeIsActive = _recipeIsActiveConfig;
 
-
             // If you have something that shouldn't go into the ObjectDB, like vfx or sfx that only need to be added to ZNetScene
             //ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeVisual",
             //        false); // If our axe has a special visual effect, like a glow, we can skip adding it to the ObjectDB this way
             //ItemManager.PrefabManager.RegisterPrefab(PrefabManager.RegisterAssetBundle("ironfang"), "axeSound",
             //        false); // Same for special sound effects
-            
+
             // You can also pass in a game object to register a prefab. Example blank GameObject created and registered below.
             //GameObject blankGameObject = new GameObject();
             //ItemManager.PrefabManager.RegisterPrefab(blankGameObject, true);
-            
-            
+
             //Item heroBlade = new("heroset", "HeroBlade");
             //heroBlade.Crafting.Add(ItemManager.CraftingTable.Workbench, 2);
             //heroBlade.RequiredItems.Add("Wood", 5);
             //heroBlade.RequiredItems.Add("DeerHide", 2);
             //heroBlade.RequiredUpgradeItems.Add("Wood", 2);
             //heroBlade.RequiredUpgradeItems.Add("Flint", 2); // You can even add new items for the upgrade
-			
+
             //Item heroShield = new("heroset", "HeroShield");
             //heroShield["My first recipe"].Crafting.Add(ItemManager.CraftingTable.Workbench, 1); // You can add multiple recipes for the same item, by giving the recipe a name
             //heroShield["My first recipe"].RequiredItems.Add("Wood", 10);
@@ -90,7 +87,7 @@ namespace RavenCape
             //heroShield["My alternate recipe"].RequiredUpgradeItems.Add("Bronze", 1);
             //heroShield.Snapshot(); // I don't have an icon for this item in my asset bundle, so I will let the ItemManager generate one automatically
             // The icon for the item will have the same rotation as the item in unity
-			
+
             //_ = new Conversion(heroBlade) // For some reason, we want to be able to put a hero shield into a smelter, to get a hero blade
             //{
             //    Input = "HeroShield",
@@ -135,7 +132,6 @@ namespace RavenCape
             }
         }
 
-
         #region ConfigOptions
 
         private static ConfigEntry<Toggle> _serverConfigLocked = null!;
@@ -172,6 +168,6 @@ namespace RavenCape
             [UsedImplicitly] public Action<ConfigEntryBase>? CustomDrawer;
         }
 
-        #endregion
+        #endregion ConfigOptions
     }
 }
