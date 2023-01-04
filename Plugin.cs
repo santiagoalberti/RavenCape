@@ -56,6 +56,20 @@ namespace RavenCape
             tqRavenCape.RequiredUpgradeItems.Add("WolfHairBundle", 5); // 10 Silver: You need 10 silver for level 2, 20 silver for level 3, 30 silver for level 4
             tqRavenCape.CraftAmount = 1; // We really want to dual wield these
 
+            Item tqImbuedRavenCape = new("raven_cape_bundle", "ravenCapeFeather_tq");  // If your folder name is "assets" like the default. You would use this syntax.
+            // Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang"); // If your asset is in a custom folder named IronFang and not the default "assets" folder. You would use this syntax.
+
+            tqImbuedRavenCape.Name.English("Imbued Raven Cape"); // You can use this to fix the display name in code
+            tqImbuedRavenCape.Description.English("The Raven Cape has been imbued with the power of Yagluth and reinforced to absorb some damage of a fall.");
+            tqImbuedRavenCape.Crafting.Add("piece_workbench", 2); // Custom crafting stations can be specified as a string
+            tqImbuedRavenCape.RequiredItems.Add("ravenCape_tq", 1);
+            tqImbuedRavenCape.RequiredItems.Add("TrophyGoblinKing", 1);
+            tqImbuedRavenCape.RequiredItems.Add("ScaleHide", 10);
+            tqImbuedRavenCape.RequiredItems.Add("Feathers", 10);
+            tqImbuedRavenCape.RequiredUpgradeItems.Add("ScaleHide", 15); // Upgrade requirements are per item, even if you craft two at the same time
+            tqImbuedRavenCape.RequiredUpgradeItems.Add("ScaleHide", 5); // 10 Silver: You need 10 silver for level 2, 20 silver for level 3, 30 silver for level 4
+            tqImbuedRavenCape.CraftAmount = 1; // We really want to dual wield these
+
             // You can optionally pass in a configuration option of your own to determine if the recipe is enabled or not. To use the example, uncomment both of the lines below.
             //_recipeIsActiveConfig = config("IronFangAxe", "IsRecipeEnabled",Toggle.On, "Determines if the recipe is enabled for this prefab");
             //ironFangAxe.RecipeIsActive = _recipeIsActiveConfig;

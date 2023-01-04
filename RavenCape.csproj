@@ -96,8 +96,8 @@
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="assets\raven_cape_bundle" />
     <None Include=".editorconfig" />
+    <EmbeddedResource Include="assets\raven_cape_bundle" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
