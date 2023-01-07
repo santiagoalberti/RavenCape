@@ -789,6 +789,16 @@ public class Item
                                 (shared, value) => SetResistanceValue(coldResType, shared, value)
                                 );
                         }
+                        else
+                        {
+                            // we need to remove the conditional orphaned config value from the config file to prevent serversync issues
+                            var def = new ConfigDefinition(englishName, "Cold Resistance");
+
+                            // bind the config entry, because Config.Remove only accesses bound and not orphaned entries
+                            plugin.Config.Bind(def, DamageModifier.Normal);
+                            // remove the config entry, this also immediately updates the config file
+                            plugin.Config.Remove(def);
+                        }
                     }
 
                     if (itemType is ItemDrop.ItemData.ItemType.Consumable && shared.m_food > 0)
