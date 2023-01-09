@@ -9,7 +9,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace ItemManager;
@@ -151,6 +150,7 @@ public class Item
     private Configurability configurationVisible = Configurability.Full;
 
     public readonly GameObject Prefab;
+    public readonly string DefaultEnglishName;
 
     [Description("Specifies the resources needed to craft the item.\nUse .Add to add resources with their internal ID and an amount.\nUse one .Add for each resource type the item should need.")]
     public RequiredResourceList RequiredItems => this[""].RequiredItems;
@@ -249,15 +249,15 @@ public class Item
         }
     }
 
-    public Item(string assetBundleFileName, string prefabName, string folderName = "assets") : this(PrefabManager.RegisterAssetBundle(assetBundleFileName, folderName), prefabName)
+    public Item(string assetBundleFileName, string prefabName, string folderName, string defaultEnglishName) : this(PrefabManager.RegisterAssetBundle(assetBundleFileName, folderName), prefabName, defaultEnglishName)
     {
     }
 
-    public Item(AssetBundle bundle, string prefabName) : this(PrefabManager.RegisterPrefab(bundle, prefabName, true), true)
+    public Item(AssetBundle bundle, string prefabName, string defaultEnglishName) : this(PrefabManager.RegisterPrefab(bundle, prefabName, true), true, defaultEnglishName)
     {
     }
 
-    public Item(GameObject prefab, bool skipRegistering = false)
+    public Item(GameObject prefab, bool skipRegistering, string defaultEnglishName)
     {
         if (!skipRegistering)
         {
@@ -266,6 +266,7 @@ public class Item
         Prefab = prefab;
         registeredItems.Add(this);
         itemDropMap[Prefab.GetComponent<ItemDrop>()] = this;
+        DefaultEnglishName = defaultEnglishName;
     }
 
     public void ToggleConfigurationVisibility(Configurability visible)
@@ -364,7 +365,7 @@ public class Item
             foreach (Item item in registeredItems.Where(i => i.configurability != Configurability.Disabled))
             {
                 string nameKey = item.Prefab.GetComponent<ItemDrop>().m_itemData.m_shared.m_name;
-                string englishName = new Regex("['[\"\\]]").Replace(english.Localize(nameKey), "").Trim();
+                string englishName = item.DefaultEnglishName; //new Regex("['[\"\\]]").Replace(english.Localize(nameKey), "").Trim();
                 string localizedName = Localization.instance.Localize(nameKey).Trim();
 
                 if ((item.configurability & Configurability.Recipe) != 0)
@@ -735,7 +736,7 @@ public class Item
                                         Debug.LogWarning(equipSEWarningMessage);
                                     }
                                 });
-                                statcfg<float>("Equip Skill Level Increase Value", $"By how many levels {englishName} increases the skill.", shared =>
+                                statcfg("Equip Skill Level Increase Value", $"By how many levels {englishName} increases the skill.", shared =>
                                 {
                                     if (shared.m_equipStatusEffect is SE_Stats se_stat)
                                     {
@@ -791,7 +792,7 @@ public class Item
                         }
                         else
                         {
-                            // we need to remove the conditional orphaned config value from the config file to prevent serversync issues
+                            // we remove the conditional orphaned config value from the config file when the cape rework mod is not installed anymore
                             var def = new ConfigDefinition(englishName, "Cold Resistance");
 
                             // bind the config entry, because Config.Remove only accesses bound and not orphaned entries
@@ -1497,8 +1498,8 @@ public class Item
         }
     }
 
-    private static Localization? _english;
-    private static Localization english => _english ??= LocalizationCache.ForLanguage("English");
+    //private static Localization? _english;
+    //private static Localization english => _english ??= LocalizationCache.ForLanguage("English");
 
     private static BaseUnityPlugin? _plugin;
 
