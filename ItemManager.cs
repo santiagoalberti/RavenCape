@@ -249,15 +249,15 @@ public class Item
         }
     }
 
-    public Item(string assetBundleFileName, string prefabName, string folderName, string sectionName) : this(PrefabManager.RegisterAssetBundle(assetBundleFileName, folderName), prefabName, sectionName)
+    public Item(string assetBundleFileName, string prefabName, string folderName, string defaultEnglishName) : this(PrefabManager.RegisterAssetBundle(assetBundleFileName, folderName), prefabName, defaultEnglishName)
     {
     }
 
-    public Item(AssetBundle bundle, string prefabName, string sectionName) : this(PrefabManager.RegisterPrefab(bundle, prefabName, true), true, sectionName)
+    public Item(AssetBundle bundle, string prefabName, string defaultEnglishName) : this(PrefabManager.RegisterPrefab(bundle, prefabName, true), true, defaultEnglishName)
     {
     }
 
-    public Item(GameObject prefab, bool skipRegistering, string sectionName)
+    public Item(GameObject prefab, bool skipRegistering, string defaultEnglishName)
     {
         if (!skipRegistering)
         {
@@ -266,7 +266,7 @@ public class Item
         Prefab = prefab;
         registeredItems.Add(this);
         itemDropMap[Prefab.GetComponent<ItemDrop>()] = this;
-        DefaultEnglishName = sectionName;
+        DefaultEnglishName = defaultEnglishName;
     }
 
     public void ToggleConfigurationVisibility(Configurability visible)

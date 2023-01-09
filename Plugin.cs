@@ -43,10 +43,11 @@ namespace RavenCape
                 "If on, the configuration is locked and can be changed by server admins only.");
             _ = ConfigSync.AddLockingConfigEntry(_serverConfigLocked);
 
-            Item tqRavenCape = new("raven_cape_bundle", "ravenCape_tq", "assets", "Raven Cape");  // If your folder name is "assets" like the default. You would use this syntax.
+            var englishName = "Raven Cape";
+            Item tqRavenCape = new("raven_cape_bundle", "ravenCape_tq", "assets", englishName);  // If your folder name is "assets" like the default. You would use this syntax.
             // Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang"); // If your asset is in a custom folder named IronFang and not the default "assets" folder. You would use this syntax.
 
-            tqRavenCape.Name.English("Raven Cape"); // You can use this to fix the display name in code
+            tqRavenCape.Name.English(englishName); // You can use this to fix the display name in code
             tqRavenCape.Description.English("Cape made of feathers.");
             tqRavenCape.Crafting.Add("piece_workbench", 2); // Custom crafting stations can be specified as a string
             tqRavenCape.RequiredItems.Add("Feathers", 25);
@@ -56,10 +57,11 @@ namespace RavenCape
             tqRavenCape.RequiredUpgradeItems.Add("WolfHairBundle", 5); // 10 Silver: You need 10 silver for level 2, 20 silver for level 3, 30 silver for level 4
             tqRavenCape.CraftAmount = 1; // We really want to dual wield these
 
-            Item tqImbuedRavenCape = new("raven_cape_bundle", "ravenCapeFeather_tq", "assets", "Raven Cape");  // If your folder name is "assets" like the default. You would use this syntax.
+            var englishImbuedName = "Imbued Raven Cape";
+            Item tqImbuedRavenCape = new("raven_cape_bundle", "ravenCapeFeather_tq", "assets", englishImbuedName);  // If your folder name is "assets" like the default. You would use this syntax.
             // Item ironFangAxe = new("ironfang", "IronFangAxe", "IronFang"); // If your asset is in a custom folder named IronFang and not the default "assets" folder. You would use this syntax.
 
-            tqImbuedRavenCape.Name.English("Imbued Raven Cape"); // You can use this to fix the display name in code
+            tqImbuedRavenCape.Name.English(englishImbuedName); // You can use this to fix the display name in code
             tqImbuedRavenCape.Description.English("The Raven Cape has been imbued with the power of Yagluth and reinforced to absorb some damage of a fall.");
             tqImbuedRavenCape.Crafting.Add("piece_workbench", 2); // Custom crafting stations can be specified as a string
             tqImbuedRavenCape.RequiredItems.Add("ravenCape_tq", 1);
