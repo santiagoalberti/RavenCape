@@ -65,7 +65,7 @@ namespace RavenCape
             tqImbuedRavenCape.Description.English("The Raven Cape has been imbued with the power of Yagluth and reinforced to absorb some damage of a fall.");
             tqImbuedRavenCape.Crafting.Add("piece_workbench", 2); // Custom crafting stations can be specified as a string
             tqImbuedRavenCape.RequiredItems.Add("ravenCape_tq", 1);
-            tqImbuedRavenCape.RequiredItems.Add("TrophyGoblinKing", 1);
+            tqImbuedRavenCape.RequiredItems.Add("Wisp", 1);
             tqImbuedRavenCape.RequiredItems.Add("ScaleHide", 10);
             tqImbuedRavenCape.RequiredItems.Add("Feathers", 10);
             tqImbuedRavenCape.RequiredUpgradeItems.Add("ScaleHide", 15); // Upgrade requirements are per item, even if you craft two at the same time

@@ -98,6 +98,7 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <EmbeddedResource Include="assets\raven_cape_bundle" />
+    <None Include="assets\NEWraven_cape_bundle" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
