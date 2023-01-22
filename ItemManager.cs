@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using HarmonyLib;
 using JetBrains.Annotations;
@@ -914,8 +915,6 @@ public class Item
         }
     }
 
-    private static Dictionary<string, bool> cache = null;
-
     private const string capeReworkGuid = "goldenrevolver.CapeAndTorchResistanceChanges";
     private const int coldResist = 2048;
 
@@ -948,15 +947,7 @@ public class Item
 
     public static bool HasPlugin(string guid)
     {
-        cache ??= new Dictionary<string, bool>();
-
-        if (!cache.ContainsKey(guid))
-        {
-            var plugins = UnityEngine.Object.FindObjectsOfType<BaseUnityPlugin>();
-            cache[guid] = plugins.Any(plugin => plugin.Info.Metadata.GUID == guid);
-        }
-
-        return cache[guid];
+        return Chainloader.PluginInfos.ContainsKey(guid);
     }
 
     private static void FreshlyReapplyStatusEffect(StatusEffect statusEffect)
